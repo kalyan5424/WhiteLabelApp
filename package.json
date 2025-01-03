@@ -7,7 +7,11 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "androidBuildReleaseApk": "fastlane buildReleaseApk",
+    "androidBuildDebugApk": "fastlane buildDebugApk",
+    "androidBuildReleaseInstall": "fastlane buildReleaseInstall",
+    "androidBuildDebugInstall": "fastlane buildDebugInstall"
   },
   "dependencies": {
     "react": "18.3.1",

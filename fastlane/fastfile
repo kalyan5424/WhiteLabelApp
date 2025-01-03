@@ -1,0 +1,24 @@
+desc 'Generate the Android application Release APK in android/app/build/outputs/apk/release'
+lane :buildReleaseApk do
+  gradle(task: 'clean', project_dir: 'android/')
+  gradle(task: 'assemble', build_type: 'Release', project_dir: 'android/')
+end
+
+desc 'Generate the Android application Debug APK in android/app/build/outputs/apk/debug'
+lane :buildDebugApk do
+  gradle(task: 'clean', project_dir: 'android/')
+  gradle(task: 'assemble', build_type: 'Debug', project_dir: 'android/')
+end
+
+desc 'Build & install the Android Release APK'
+lane :buildReleaseInstall do
+  gradle(task: 'clean', project_dir: 'android/')
+  gradle(task: 'install', build_type: 'Release', project_dir: 'android/')
+end
+
+desc 'Build & install the Android Debug APK'
+lane :buildDebugInstall do
+  gradle(task: 'clean', project_dir: 'android/')
+  gradle(task: 'install', build_type: 'Debug', project_dir: 'android/')
+end
+

@@ -78,7 +78,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace project.env.get("APP_ID")
+    namespace "com.whitelabelapp"
     defaultConfig {
         applicationId project.env.get("APP_ID")
         minSdkVersion rootProject.ext.minSdkVersion
