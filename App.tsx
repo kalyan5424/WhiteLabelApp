@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from "react"
+import React from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -13,15 +13,10 @@ import {
   StyleSheet,
   Text,
   View,
-} from "react-native"
+} from "react-native";
+import Config from "react-native-config";
 
-import {
-  Colors,
-  Header,
-} from "react-native/Libraries/NewAppScreen"
-import { name as AppName } from "./app.json"
-
-const isDarkMode = false
+const isDarkMode = false;
 function App(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.backgroundStyle}>
@@ -29,31 +24,13 @@ function App(): React.JSX.Element {
         barStyle={isDarkMode ? "light-content" : "dark-content"}
         backgroundColor={styles.backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={styles.backgroundStyle}
-      >
-        <Header />
-        <View
-          style={{
-            backgroundColor: "#FF4567",
-            flex: 1,
-          }}
-        >
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                color: isDarkMode ? Colors.white : Colors.black,
-              },
-            ]}
-          >
-            {AppName}
-          </Text>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <View>
+          <Text style={[styles.sectionTitle]}>{Config.APP_NAME}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -61,10 +38,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     alignSelf: "center",
+    margin: 50,
   },
   backgroundStyle: {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: Config.THEME_COLOR,
+    flex: 1,
   },
-})
+});
 
-export default App
+export default App;
