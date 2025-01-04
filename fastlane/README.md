@@ -13,13 +13,21 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
+### prepare_build
+
+```sh
+[bundle exec] fastlane prepare_build
+```
+
+Prepare Lane by pointing custom .env file
+
 ### buildReleaseApk
 
 ```sh
 [bundle exec] fastlane buildReleaseApk
 ```
 
-Build the Android application Release APK.
+Generate the Android application Release APK in android/app/build/outputs/apk/release
 
 ### buildDebugApk
 
@@ -27,7 +35,7 @@ Build the Android application Release APK.
 [bundle exec] fastlane buildDebugApk
 ```
 
-Build the Android application Debug APK. 
+Generate the Android application Debug APK in android/app/build/outputs/apk/debug
 
 ### buildReleaseInstall
 
@@ -35,7 +43,7 @@ Build the Android application Debug APK.
 [bundle exec] fastlane buildReleaseInstall
 ```
 
-Build & install the Android Release APK in android/app/build/outputs/apk/release
+Build & install the Android Release APK
 
 ### buildDebugInstall
 
@@ -43,7 +51,7 @@ Build & install the Android Release APK in android/app/build/outputs/apk/release
 [bundle exec] fastlane buildDebugInstall
 ```
 
-Build & install the Android application. in android/app/build/outputs/apk/debug
+Build & install the Android Debug APK
 
 ----
 

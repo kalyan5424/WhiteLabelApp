@@ -1,3 +1,80 @@
+require 'dotenv'
+
+desc 'Prepare Lane by pointing custom .env file'
+lane :prepare_build do |options|
+  puts "options is":options
+  setup_env(options[:unique_whitelabel_id])
+  configure_android
+end
+
+def setup_env(unique_whitelabel_id)
+  puts "unique_whitelabel_id is":unique_whitelabel_id
+  ENV["UNIQUE_BUNDLE_ID"] = unique_whitelabel_id
+  env_file = "./whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/.env"
+  assets = "./whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/assets/."
+  
+  # ===== copy white label assets and env to root project
+  sh("cp #{env_file} ../")
+  sh("cp -a #{assets} ../src/assets")
+  
+  # ===== load the env_file into the environment 
+  Dotenv.overload env_file
+  
+  # ====== ensure all necessary environment vars are setup
+  ensure_env_vars(
+    env_vars: %w[
+       APP_ID
+       APP_NAME
+       UNIQUE_BUNDLE_ID
+       API_BASE_URL
+       GOOGLE_MAPS_API_KEY
+       ANDROID_VERSION_CODE
+       ANDROID_VERSION_NAME
+       THEME_COLOR
+       DEEPLINK_SCHEME
+       FIREBASE_DEEPLINK_URL
+       ANDROID_GEO_API_KEY
+       IOS_GEO_API_KEY
+       MIXPANEL_PROJECT_TOKEN
+       BUGSNAG_NOTIFIER_API_KEY
+       CODE_PUSH_DEPLOYMENT_KEY
+       CODE_PUSH_DEPLOYMENT_KEY_IOS
+   ],
+  )
+end
+
+private_lane :configure_android do
+  google_services_json_src = "./whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/google-services.json"
+  puts "google_services_json_src is":google_services_json_src
+  android_dest = "../android/app"
+  sh("cp #{google_services_json_src} #{android_dest}")
+  configure_assets("android")
+
+  android_set_version_code(
+    version_code: @build_number,
+    gradle_file: "./android/app/build.gradle", # optional
+  )
+end
+
+def configure_assets(platform)
+  unique_whitelabel_id = ENV["UNIQUE_BUNDLE_ID"]
+  ios_icon_file_path = "whitelabels/#{unique_whitelabel_id}/icon.png"
+  android_icon_file_path = "whitelabels/#{unique_whitelabel_id}/icon_android.png"
+  splash_file_path = "whitelabels/#{unique_whitelabel_id}/splash.png"
+  unless File.exist?(ios_icon_file_path) && File.exist?(android_icon_file_path)
+    UI.user_error!("1024x1024 'icon.png' file required in white label directory")
+  end
+
+  Dir.chdir("..") do
+    if platform == "ios"
+      sh("react-native set-icon --platform #{platform} --path './fastlane/#{ios_icon_file_path}'")
+    end
+    if platform == "android"
+      sh("react-native set-icon --platform #{platform} --path './fastlane/#{android_icon_file_path}'")
+    end
+  end
+end
+
 desc 'Generate the Android application Release APK in android/app/build/outputs/apk/release'
 lane :buildReleaseApk do
   gradle(task: 'clean', project_dir: 'android/')
