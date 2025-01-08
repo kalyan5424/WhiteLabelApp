@@ -2,7 +2,7 @@ require 'dotenv'
 
 desc 'Prepare Lane by pointing custom .env file'
 lane :prepare_build do |options|
-  puts "options is":options
+  puts "App option selected::":options
   setup_env(options[:unique_whitelabel_id])
   configure_android
   configure_ios
@@ -11,7 +11,7 @@ end
   # ====== Sets environment for selected unique_whitelabel_id for both iOS & android
 
 def setup_env(unique_whitelabel_id)
-  puts "unique_whitelabel_id is":unique_whitelabel_id
+  puts "white label id is::":unique_whitelabel_id
   ENV["UNIQUE_BUNDLE_ID"] = unique_whitelabel_id
   env_file = "./whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/.env"
   assets = "./whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/assets/."
@@ -49,8 +49,8 @@ def setup_env(unique_whitelabel_id)
 end
 
 private_lane :configure_android do
+  puts "Configuring for android build"
   google_services_json_src = "./whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/google-services.json"
-  puts "google_services_json_src is":google_services_json_src
   android_dest = "../android/app"
   sh("cp #{google_services_json_src} #{android_dest}")
   configure_assets("android")
@@ -62,6 +62,7 @@ private_lane :configure_android do
 end
 
 def configure_assets(platform)
+  puts "Configuring assets for::":platform
   unique_whitelabel_id = ENV["UNIQUE_BUNDLE_ID"]
   ios_icon_file_path = "whitelabels/#{unique_whitelabel_id}/icon.png"
   android_icon_file_path = "whitelabels/#{unique_whitelabel_id}/icon_android.png"
@@ -71,12 +72,16 @@ def configure_assets(platform)
   end
 
   Dir.chdir("..") do
-    sh("react-native set-splash --platform #{platform} --path './fastlane/#{splash_file_path}' --resize contain --background '#{ENV["THEME_COLOR"]}'")
     if platform == "ios"
+      sh("react-native set-splash --platform #{platform} --path './fastlane/#{splash_file_path}' --resize contain --background '#{ENV["THEME_COLOR"]}'")
       sh("react-native set-icon --platform #{platform} --path './fastlane/#{ios_icon_file_path}'")
     end
     if platform == "android"
+      # splash_file_path = "./fastlane/whitelabels/#{unique_whitelabel_id}/splash.png"
+      # android_dest = "android/app/src/main/res/drawable/"
       sh("react-native set-icon --platform #{platform} --path './fastlane/#{android_icon_file_path}'")
+      # sh("cp #{splash_file_path} #{android_dest}")
+      # sh("mv android/app/src/main/res/drawable/splash.png android/app/src/main/res/drawable/splash_image.png")
     end
   end
 end
@@ -106,9 +111,9 @@ lane :buildDebugInstall do
 end
 
 private_lane :configure_ios do
+  puts "Configuring for iOS build"
   google_services_plist_src = "whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/GoogleService-Info.plist"
   ios_dest = "../ios/#{ENV["XCODE_PROJECT_NAME"]}"
-  puts "ios_dest is":ios_dest
   sh("cp #{google_services_plist_src} #{ios_dest}")
 
   configure_assets("ios")
