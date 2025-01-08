@@ -78,7 +78,7 @@ To learn more about React Native, take a look at the following resources:
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
 
-React Native White Labelling
+# React Native White Labelling
 
 List of Unique Characteristics targeted for White labelling:
 
@@ -96,7 +96,6 @@ List of Unique Characteristics targeted for White labelling:
 - [x] Splash
 - [x] Push Notification Certificates / APNS key
 - [x] Provisioning Profile (iOS)
-- [x] Github template hook for creating clones
 
 Tools
 
