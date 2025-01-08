@@ -4,7 +4,7 @@ desc 'Prepare Lane by pointing custom .env file'
 lane :prepare_build do |options|
   puts "options is":options
   setup_env(options[:unique_whitelabel_id])
-  # configure_android
+  configure_android
   configure_ios
 end
 
@@ -73,10 +73,7 @@ def configure_assets(platform)
   Dir.chdir("..") do
     sh("react-native set-splash --platform #{platform} --path './fastlane/#{splash_file_path}' --resize contain --background '#{ENV["THEME_COLOR"]}'")
     if platform == "ios"
-      ios_splash_path = "ios/SplashScreen.storyboard"
-      ios_dest = "ios/#{ENV["XCODE_PROJECT_NAME"]}/"
       sh("react-native set-icon --platform #{platform} --path './fastlane/#{ios_icon_file_path}'")
-      # sh("mv #{ios_splash_path} #{ios_dest}")
     end
     if platform == "android"
       sh("react-native set-icon --platform #{platform} --path './fastlane/#{android_icon_file_path}'")
