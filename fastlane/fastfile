@@ -4,8 +4,11 @@ desc 'Prepare Lane by pointing custom .env file'
 lane :prepare_build do |options|
   puts "options is":options
   setup_env(options[:unique_whitelabel_id])
-  configure_android
+  # configure_android
+  configure_ios
 end
+
+  # ====== Sets environment for selected unique_whitelabel_id for both iOS & android
 
 def setup_env(unique_whitelabel_id)
   puts "unique_whitelabel_id is":unique_whitelabel_id
@@ -39,6 +42,8 @@ def setup_env(unique_whitelabel_id)
        BUGSNAG_NOTIFIER_API_KEY
        CODE_PUSH_DEPLOYMENT_KEY
        CODE_PUSH_DEPLOYMENT_KEY_IOS
+       XCODE_PROJECT_NAME
+       SKU
    ],
   )
 end
@@ -66,8 +71,12 @@ def configure_assets(platform)
   end
 
   Dir.chdir("..") do
+    sh("react-native set-splash --platform #{platform} --path './fastlane/#{splash_file_path}' --resize contain --background '#{ENV["THEME_COLOR"]}'")
     if platform == "ios"
+      ios_splash_path = "ios/SplashScreen.storyboard"
+      ios_dest = "ios/#{ENV["XCODE_PROJECT_NAME"]}/"
       sh("react-native set-icon --platform #{platform} --path './fastlane/#{ios_icon_file_path}'")
+      sh("mv #{ios_splash_path} #{ios_dest}")
     end
     if platform == "android"
       sh("react-native set-icon --platform #{platform} --path './fastlane/#{android_icon_file_path}'")
@@ -98,4 +107,115 @@ lane :buildDebugInstall do
   gradle(task: 'clean', project_dir: 'android/')
   gradle(task: 'install', build_type: 'Debug', project_dir: 'android/')
 end
+
+private_lane :configure_ios do
+  google_services_plist_src = "whitelabels/#{ENV["UNIQUE_BUNDLE_ID"]}/GoogleService-Info.plist"
+  ios_dest = "../ios/#{ENV["XCODE_PROJECT_NAME"]}"
+  puts "ios_dest is":ios_dest
+  sh("cp #{google_services_plist_src} #{ios_dest}")
+
+  configure_assets("ios")
+
+  xcodeproj_path = "./ios/#{ENV["XCODE_PROJECT_NAME"]}.xcodeproj"
+
+  # increment_build_number(
+  #   xcodeproj: xcodeproj_path,
+  #   scheme: ENV["XCODE_SCHEME"],
+  #   build_number: "#{@build_number}",
+  # )
+
+  # increment_build_number(
+  #   build_number: app_store_build_number + 1,
+  #   xcodeproj: xcodeproj_path
+  # )
+
+  update_info_plist(
+    xcodeproj: xcodeproj_path,
+    plist_path: "./#{ENV["XCODE_PROJECT_NAME"]}/Info.plist",
+    display_name: (ENV["APP_NAME"]).to_s,
+  )
+
+  # update_plist(
+  #   plist_path: "./ios/#{ENV["XCODE_PROJECT_NAME"]}/Info.plist",
+  #   block: proc do |plist|
+  #     plist["FacebookDisplayName"] = (ENV["FACEBOOK_DISPLAY_NAME"]).to_s
+  #     plist["FacebookAppID"] = (ENV["FACEBOOK_APP_ID"]).to_s
+  #     plist["CodePushDeploymentKey"] = (ENV["CodePushDeploymentKey_iOS"]).to_s
+  #     plist["BugsnagAPIKey"] = (ENV["BUGSNAG_NOTIFIER_API_KEY"]).to_s
+  #   end,
+  # )
+
+  ### update deep link url scheme
+
+  # update_info_plist(
+  #   xcodeproj: xcodeproj_path,
+  #   plist_path: "./#{ENV["XCODE_PROJECT_NAME"]}/Info.plist",
+  #   block: proc do |plist|
+  #     urlScheme = plist["CFBundleURLTypes"].find { |scheme| scheme["CFBundleURLName"] == "bundle_identifier" }
+  #     urlScheme[:CFBundleURLSchemes] = [ENV["DEEPLINK_SCHEME"]]
+  #   end,
+  # )
+
+  # update_ios_entitlements_file
+
+  update_app_identifier(
+    xcodeproj: xcodeproj_path,
+    plist_path: "./#{ENV["XCODE_PROJECT_NAME"]}/Info.plist",
+    app_identifier: (ENV["APP_ID"]).to_s,
+  )
+
+  # produce(
+  #   username: ENV["APPSTORE_USER"],
+  #   app_identifier: ENV["APP_ID"],
+  #   app_name: ENV["APP_NAME"],
+  #   language: "English",
+  #   app_version: "1.0",
+  #   sku: ENV["SKU"],
+  #   enable_services: {
+  #     associated_domains: "on",
+  #     push_notification: "on",
+  #   },
+  # )
+
+  # match(
+  #   type: "appstore",
+  #   username: ENV["APPSTORE_USER"],
+  #   app_identifier: [ENV["APP_ID"]],
+  # )
+
+  # if !is_on_ci
+  #   match(
+  #     type: "development",
+  #     username: ENV["APPSTORE_USER"],
+  #     app_identifier: [ENV["APP_ID"]],
+  #   )
+  # end
+
+  # sigh(
+  #   username: ENV["APPSTORE_USER"],
+  #   app_identifier: ENV["APP_ID"],
+  #   output_path: "ios/provisioning_profiles",
+  # )
+
+  # update_project_provisioning(
+  #   xcodeproj: xcodeproj_path,
+  #   profile: ENV["SIGH_PROFILE_PATH"],
+  #   target_filter: ENV["XCODE_TARGET_NAME"],
+  #   build_configuration: "Release",
+  # )
+
+  # cocoapods(podfile: "./ios/Podfile") unless !is_on_ci
+end
+
+
+# def update_ios_entitlements_file
+#   entitlements_file_path = "./ios/#{ENV["XCODE_WORKSPACE_NAME"]}/<organization>.entitlements"
+#   deeplink_scheme = "applinks:#{ENV["DEEPLINK_SCHEME"]}.page.link"
+#   update_plist( # Updates the CLIENT_ID and GOOGLE_APP_ID string entries in the plist-file
+#     plist_path: entitlements_file_path,
+#     block: proc do |plist|
+#       plist[:"com.apple.developer.associated-domains"] = [deeplink_scheme]
+#     end
+#   )
+# end
 
